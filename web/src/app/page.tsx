@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Examples } from "./examples";
 import { Technical } from "./technical";
+import { AfterVideo, Nav } from "./cta";
+import { DEPLOY_URL, DOCS_URL, REPO_URL } from "@/lib/links";
 
 type Mode = "url" | "prompt";
 type Job = { jobId: string; sessionId: string; mode: Mode; input: string; startedAt: number };
@@ -101,10 +103,10 @@ export default function Home() {
   const failed = job && poll?.status === "error";
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+    <main className="flex-1 flex flex-col items-center justify-center px-6 pb-16 pt-2">
       <div className="w-full max-w-3xl">
-        <header className="mb-10">
-          <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted mb-4">shipvideo</p>
+        <Nav />
+        <header className="mb-10 mt-8">
           <h1 className="text-5xl sm:text-6xl font-semibold tracking-[-0.04em] leading-[0.95]">
             Ship a launch video.
           </h1>
@@ -189,6 +191,10 @@ export default function Home() {
             <p className="mt-6 text-xs text-muted">
               The agent reads the source, writes an HTML film, checks it, renders 30 frames a second in a headless browser, and uploads the MP4. You can leave this tab open.
             </p>
+            <p className="mt-3 text-xs text-muted">
+              While you wait: the agent doing this is open source.{" "}
+              <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="text-foreground underline underline-offset-4">Deploy a copy to your OpenComputer account</a>.
+            </p>
             <button onClick={reset} className="mt-4 text-xs text-muted hover:text-foreground">cancel and start over</button>
           </section>
         )}
@@ -204,6 +210,7 @@ export default function Home() {
               <button onClick={reset} className="ml-auto text-sm text-muted hover:text-foreground">make another</button>
             </div>
             {poll.note && <p className="mt-4 text-sm text-muted whitespace-pre-wrap">{poll.note.replace(poll.videoUrl ?? "", "").trim()}</p>}
+            <AfterVideo />
           </section>
         )}
 
@@ -226,8 +233,11 @@ export default function Home() {
 
         <Technical />
 
-        <footer className="mt-14 font-mono text-[11px] text-muted">
-          runs as a serverless agent on opencomputer.dev · model anthropic/claude-opus-5.5 · no video model involved: the agent writes HTML and renders it
+        <footer className="mt-14 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px] text-muted">
+          <span>a serverless agent on opencomputer.dev · anthropic/claude-opus-5.5 · no video model</span>
+          <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">deploy</a>
+          <a href={REPO_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">github</a>
+          <a href={DOCS_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">docs</a>
         </footer>
       </div>
     </main>

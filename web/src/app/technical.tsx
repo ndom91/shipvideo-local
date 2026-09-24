@@ -1,3 +1,6 @@
+import { CliCommand, TryCta } from "./cta";
+import { DEPLOY_URL } from "@/lib/links";
+
 const AGENT_SNIPPET = `// opencomputer/agents/director/agent.ts
 import { useInput, useModel, useTool } from "@opencomputer/agent";
 import { checkScene, renderVideo } from "./tools/scene.js";
@@ -26,7 +29,7 @@ export function Technical() {
   return (
     <section className="mt-24 border-t border-line pt-12">
       <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted">how it runs</p>
-      <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">A serverless agent on OpenComputer.</h2>
+      <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">A serverless agent on OpenComputer. Yours in one click.</h2>
       <p className="mt-3 max-w-2xl text-sm text-muted">
         The whole product is one agent file, three tools, and this form. OpenComputer runs the agent, the microVM it renders in, the model gateway, and the session API the page polls.
       </p>
@@ -49,9 +52,13 @@ export function Technical() {
       <pre className="mt-10 overflow-x-auto rounded-xl border border-line bg-white/[0.02] p-5 font-mono text-[12.5px] leading-relaxed text-foreground/85">
         <code>{AGENT_SNIPPET}</code>
       </pre>
+      <TryCta />
+      <div className="mt-4">
+        <CliCommand />
+      </div>
       <p className="mt-6 text-sm text-muted">
-        Build your own at{" "}
-        <a href="https://opencomputer.dev" className="text-foreground underline underline-offset-4">opencomputer.dev</a>. The idea comes from{" "}
+        Everything above is in the repo, and{" "}
+        <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="text-foreground underline underline-offset-4">one click deploys it to your account</a>. The idea comes from{" "}
         <a href="https://x.com/deedydas/status/2102787937482252537" className="text-foreground underline underline-offset-4" target="_blank" rel="noreferrer">Deedy's post</a>{" "}
         on Opus 5.5 and instructional video: the model writes the film as code, and code renders the same every time.
       </p>
