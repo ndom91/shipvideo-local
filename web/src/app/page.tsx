@@ -10,7 +10,7 @@ type Mode = "url" | "prompt";
 type Job = { jobId: string; sessionId: string; mode: Mode; input: string; startedAt: number };
 type Poll = { status: "working" | "done" | "error"; phase?: string; videoUrl?: string; message?: string; note?: string };
 
-const STORAGE = "shipvideo:job";
+const STORAGE = "launchvideo:job";
 const EXAMPLES: Record<Mode, string> = {
   url: "https://opencomputer.dev",
   prompt: "A modern, slick, punchy launch video for a startup that does LLM inference: first token in 38 ms, 12,000 tokens per second, nothing idle.",

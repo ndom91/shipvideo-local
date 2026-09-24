@@ -1,4 +1,6 @@
-# shipvideo
+# LaunchVideo (launchvideo.io)
+
+Live: https://launchvideo.io
 
 Paste a URL or a prompt, get a 20 to 40 second launch video. No video model:
 Opus 5.5 writes a single HTML film and a serverless agent on OpenComputer
