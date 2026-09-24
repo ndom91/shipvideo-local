@@ -1,0 +1,16 @@
+schema = 1
+
+[template]
+name = "ShipVideo"
+description = "Paste a URL or a prompt, get a 30-second launch video. Opus 5.5 writes the film as HTML; the agent renders it frame by frame in headless Chromium and ffmpeg. No video model."
+documentation = "https://github.com/diggerhq/shipvideo#readme"
+default_project_name = "shipvideo"
+
+[template.first_run]
+agent = "director"
+prompt = "Make a 25-second launch video for a fictional startup that does LLM inference. There is no upload target, so keep the MP4 in the runtime and report its path."
+
+[template.runtime_variables.BLOB_PUBLIC_BASE]
+description = "Optional. Public base URL of the Vercel Blob store the web app uploads job manifests to, e.g. https://<store>.public.blob.vercel-storage.com. Only needed when you run the web/ frontend."
+required = false
+example = "https://abc123.public.blob.vercel-storage.com"
