@@ -120,6 +120,24 @@ async function check(html, durationSeconds) {
         ),
       );
     }
+    if (frames.at(-1)?.t !== durationSeconds) {
+      await scene.page.evaluate(
+        (ms) => window.__seek(ms),
+        durationSeconds * 1000,
+      );
+      frames.push(
+        await scene.page.evaluate(
+          (t) => ({
+            t,
+            text: document.body.innerText
+              .replace(/\s+/g, " ")
+              .trim()
+              .slice(0, 1000),
+          }),
+          durationSeconds,
+        ),
+      );
+    }
     return { ok: scene.errors.length === 0, errors: scene.errors, frames };
   } finally {
     await scene.context.close();
