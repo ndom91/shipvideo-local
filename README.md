@@ -2,7 +2,7 @@
 
 Paste a URL or a prompt, get a 20 to 40 second launch video. No video model:
 Claude Code writes a single HTML film, then your computer renders it frame by frame
-in headless Chromium and records it with ffmpeg. Compatible with whatever 
+in headless Chromium and records it with ffmpeg. Compatible with whatever
 Claude Code login you use (subscription or API key).
 
 This fork is intended for local use. It launches Claude Code and renders video
@@ -28,7 +28,6 @@ Requirements:
 # Clone your fork and use the local-first branch.
 git clone git@github.com:ndom91/shipvideo-local.git
 cd shipvideo-local
-git switch local-claude-run
 
 # Install workspace dependencies, Playwright, and its copy of headless Chromium
 pnpm setup-local
