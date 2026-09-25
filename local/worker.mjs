@@ -79,6 +79,19 @@ try {
     throw new Error(
       "scene.json must contain durationSeconds between 20 and 40.",
     );
+  await update({ status: "working", phase: "Checking the scene" });
+  const check = spawn(
+    process.execPath,
+    [rendererPath, "--check", scenePath, String(duration)],
+    { cwd: jobDir, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  check.stdout.pipe(log, { end: false });
+  check.stderr.pipe(log, { end: false });
+  const checkCode = await waitFor(check);
+  if (checkCode !== 0)
+    throw new Error(
+      `The scene failed validation. See claude.log for the details.`,
+    );
   await update({ status: "working", phase: "Rendering frames locally" });
   const render = spawn(
     process.execPath,

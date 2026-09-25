@@ -9,6 +9,10 @@ const ffmpegPath = require("ffmpeg-static");
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
+const ALLOWED_REMOTE_ORIGINS = new Set([
+  "https://fonts.googleapis.com",
+  "https://fonts.gstatic.com",
+]);
 const CLOCK = `(() => {
   let now = 0, rafs = new Map(), rafId = 0, timers = new Map(), timerId = 0;
   const epoch = Date.now(), RealDate = Date, seen = new WeakMap();
@@ -47,8 +51,14 @@ function assertScene(html) {
     (!/<html[\s>]/i.test(html) && !/<body[\s>]/i.test(html))
   )
     throw new Error("scene.html must be a complete HTML document.");
-  if (/<(video|audio|iframe)[\s>]/i.test(html))
-    throw new Error("Scenes cannot use video, audio, or iframe elements.");
+  if (/<(video|audio|iframe|script|img)[\s>]/i.test(html))
+    throw new Error(
+      "Scenes cannot use video, audio, iframe, script, or img elements.",
+    );
+  if (/\btransition(?:-[\w-]+)?\s*:/i.test(html))
+    throw new Error("Scenes cannot use CSS transitions.");
+  if (/\bMath\s*\.\s*random\s*\(/.test(html))
+    throw new Error("Scenes cannot use Math.random().");
 }
 
 async function openScene(html) {
@@ -67,6 +77,12 @@ async function openScene(html) {
   });
   await context.addInitScript(CLOCK);
   const page = await context.newPage();
+  await page.route("**/*", (route) => {
+    const origin = new URL(route.request().url()).origin;
+    return ALLOWED_REMOTE_ORIGINS.has(origin)
+      ? route.continue()
+      : route.abort();
+  });
   const errors = [];
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
   page.on("console", (message) => {
@@ -116,6 +132,8 @@ async function render(html, durationSeconds, output) {
   const fps = 30;
   const total = Math.round(durationSeconds * fps);
   await mkdir(dirname(output), { recursive: true });
+  if (scene.errors.length > 0)
+    throw new Error(`Scene check failed:\n${scene.errors.join("\n")}`);
   const ffmpeg = spawn(ffmpegPath, [
     "-y",
     "-loglevel",
@@ -182,7 +200,9 @@ if (
 )
   throw new Error("Duration must be between 3 and 90 seconds.");
 if (mode === "--check") {
-  console.log(JSON.stringify(await check(html, durationSeconds), null, 2));
+  const report = await check(html, durationSeconds);
+  console.log(JSON.stringify(report, null, 2));
+  if (!report.ok) process.exitCode = 1;
 } else if (mode === "--render" && outputPath) {
   await render(html, durationSeconds, resolve(outputPath));
   console.log(
