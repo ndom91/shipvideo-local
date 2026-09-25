@@ -191,6 +191,8 @@ async function render(html, durationSeconds, output) {
         );
       if (frame % 90 === 0) console.log(`rendering ${frame}/${total}`);
     }
+    if (scene.errors.length > 0)
+      throw new Error(`Scene render failed:\n${scene.errors.join("\n")}`);
   } finally {
     ffmpeg.stdin.end();
     await scene.context.close();
