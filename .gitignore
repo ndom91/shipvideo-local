@@ -3,4 +3,5 @@ node_modules/
 .vercel/
 .next/
 .DS_Store
+.interface-design/
 web/.local-jobs/
