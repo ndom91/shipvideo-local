@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { access, readFile, stat, writeFile } from "node:fs/promises";
+import { access, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,10 +11,12 @@ const job = JSON.parse(await readFile(join(jobDir, "job.json"), "utf8"));
 const statePath = join(jobDir, "state.json");
 
 async function update(state) {
+  const temporaryStatePath = `${statePath}.${process.pid}.tmp`;
   await writeFile(
-    statePath,
+    temporaryStatePath,
     JSON.stringify({ ...state, updatedAt: new Date().toISOString() }, null, 2),
   );
+  await rename(temporaryStatePath, statePath);
 }
 
 function waitFor(child) {
@@ -110,7 +112,6 @@ try {
     status: "done",
     phase: "Done",
     bytes: info.size,
-    videoPath,
     note: "Generated with your local Claude Code subscription and rendered on this Mac.",
   });
 } catch (error) {

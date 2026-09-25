@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  createLocalJob,
-  listLocalJobs,
-  type Mode,
-  newJobId,
-} from "@/lib/local-jobs";
+import type { Mode } from "@/lib/job-types";
+import { createLocalJob, listLocalJobs, newJobId } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;

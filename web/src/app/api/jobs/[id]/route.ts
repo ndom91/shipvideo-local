@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { LocalJobResponse } from "@/lib/job-types";
 import { getLocalJob } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
@@ -17,5 +18,5 @@ export async function GET(
   return NextResponse.json({
     ...state,
     videoUrl: state.status === "done" ? `/api/videos/${jobId}` : undefined,
-  });
+  } satisfies LocalJobResponse);
 }

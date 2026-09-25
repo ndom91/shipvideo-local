@@ -7,24 +7,12 @@ import {
   useRef,
   useState,
 } from "react";
+import type { LocalJobResponse, LocalJobSummary, Mode } from "@/lib/job-types";
 import { Nav } from "./cta";
 
-type Mode = "url" | "prompt";
 type Job = { jobId: string; mode: Mode; input: string; startedAt: number };
-type Poll = {
-  status: "working" | "done" | "error";
-  phase?: string;
-  videoUrl?: string;
-  message?: string;
-  note?: string;
-};
-type HistoryJob = Poll & {
-  jobId: string;
-  mode: Mode;
-  input: string;
-  updatedAt: string;
-  bytes?: number;
-};
+type Poll = LocalJobResponse;
+type HistoryJob = LocalJobSummary & { videoUrl?: string };
 
 const STORAGE = "launchvideo:job";
 const EXAMPLES: Record<Mode, string> = {
