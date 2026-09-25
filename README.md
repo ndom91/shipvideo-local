@@ -1,6 +1,8 @@
-# LaunchVideo, local Claude Code edition
+# LaunchVideo - local Claude Code edition
 
-Paste a URL or a prompt, get a 20 to 40 second launch video. No video model:
+Paste a URL or a prompt, get a 20 to 40 second launch video. No video model
+required.
+
 Claude Code writes a single HTML film, then your computer renders it frame by frame
 in headless Chromium and records it with ffmpeg. Compatible with whatever
 Claude Code login you use (subscription or API key).
@@ -8,25 +10,19 @@ Claude Code login you use (subscription or API key).
 This fork is intended for local use. It launches Claude Code and renders video
 on the same machine running the small local Next.js app.
 
-![LaunchVideo local workspace, showing the render composer and local video library](./local-video-workspace.png)
-
-```
-local/          local Claude Code worker and Playwright + ffmpeg renderer
-web/            Next.js app, local job API, and local MP4 streaming route
-```
+![LaunchVideo local workspace, showing the render composer and local video library](./example_001.png)
 
 ## Quick Start
 
 Requirements:
 
-- macOS on Apple Silicon. The renderer has been verified on a MacBook Pro.
-- Node.js 24 LTS. Version 24.21.0 is pinned in `.nvmrc`.
-- Claude Code installed and logged into a Claude subscription. An API key is
-  not used.
+- Linux or macOS
+- Node.js 24 LTS
+- Claude Code installed and logged in
 
 ```bash
 # Clone your fork and use the local-first branch.
-git clone git@github.com:ndom91/shipvideo-local.git
+git clone https://github.com/ndom91/shipvideo-local
 cd shipvideo-local
 
 # Install workspace dependencies, Playwright, and its copy of headless Chromium
@@ -55,7 +51,9 @@ CLAUDE_MODEL=sonnet pnpm dev
 
 Run that command from the repository root after installing dependencies.
 
-## Local Files
+## How it works
+
+### Local Files
 
 Each request gets an isolated directory at `web/.local-jobs/<job-id>/`:
 
@@ -68,7 +66,7 @@ Each request gets an isolated directory at `web/.local-jobs/<job-id>/`:
 These directories are ignored by Git. The completed MP4 is streamed locally at
 `/api/videos/<job-id>`; it is not uploaded anywhere.
 
-## How a job flows
+### How a job flows
 
 1. `POST /api/jobs` validates the input, creates an isolated job folder, and
    launches a detached local worker.
@@ -81,7 +79,7 @@ These directories are ignored by Git. The completed MP4 is streamed locally at
 
 Rendering runs at roughly real time: a 30 s film takes 30-40 s on a MacBook Pro.
 
-## Gotchas
+### Gotchas
 
 - No `<video>`, `<audio>`, `<iframe>`, CSS transitions, `Math.random`, or
   external images in a scene; the worker prompt and renderer enforce this so
