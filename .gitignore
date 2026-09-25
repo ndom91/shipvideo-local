@@ -2,7 +2,5 @@ node_modules/
 .env*.local
 .vercel/
 .next/
-.opencomputer/
-opencomputer/agents/*/.opencomputer/
 .DS_Store
 web/.local-jobs/

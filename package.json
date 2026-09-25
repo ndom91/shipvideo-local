@@ -1,24 +1,14 @@
 {
-  "name": "shipvideo-agent",
+  "name": "shipvideo-local",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "opencomputer": "opencomputer",
-    "build": "tsc --noEmit",
-    "deploy": "opencomputer deploy",
-    "session": "opencomputer session",
     "setup-local": "npm install && npx playwright-core install chromium-headless-shell"
   },
   "dependencies": {
-    "@opencomputer/agent": "^0.5.2",
     "ffmpeg-static": "^5.2.0",
     "playwright-core": "^1.57.0"
-  },
-  "devDependencies": {
-    "@opencomputer/cli": "^0.6.7",
-    "@types/node": "^24.0.0",
-    "typescript": "^5.9.0"
   },
   "engines": { "node": ">=22.0.0" }
 }

@@ -3,11 +3,13 @@
 Paste a URL or a prompt, get a 20 to 40 second launch video. No video model:
 Claude Code writes a single HTML film, then this Mac renders it frame by frame
 in headless Chromium and encodes it with ffmpeg. It uses the existing Claude
-Code login, so it does not require `ANTHROPIC_API_KEY`, OpenComputer, Vercel,
-or a Blob store.
+Code login, so it does not require `ANTHROPIC_API_KEY`, Vercel, or a Blob
+store.
 
 This fork is intended for local use. It launches Claude Code and renders video
 on the same machine running the Next.js app.
+
+![LaunchVideo local workspace, showing the render composer and local video library](<./2026-09-25 13.31.23 localhost 3a1a8c325351.png>)
 
 ```
 local/          local Claude Code worker and Playwright + ffmpeg renderer
@@ -89,8 +91,6 @@ Rendering runs at roughly real time: a 30 s film takes 30-40 s on a MacBook Pro.
 - No `<video>`, `<audio>`, `<iframe>`, CSS transitions, `Math.random`, or
   external images in a scene; the worker prompt and renderer enforce this so
   renders stay deterministic.
-- The legacy `opencomputer/` source remains as a reference implementation but
-  is not used by the local app.
 - The job worker only permits Claude Code's file tools, WebFetch, and the
   `node` scene-check command. It does not grant arbitrary shell access.
 - URL mode asks Claude to read a public site. Treat submitted URLs as untrusted

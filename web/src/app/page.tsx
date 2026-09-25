@@ -10,7 +10,7 @@ type HistoryJob = Poll & { jobId: string; mode: Mode; input: string; updatedAt: 
 
 const STORAGE = "launchvideo:job";
 const EXAMPLES: Record<Mode, string> = {
-  url: "https://opencomputer.dev",
+  url: "https://example.com",
   prompt: "A direct launch video for a developer tool that makes LLM inference fast and predictable.",
 };
 
