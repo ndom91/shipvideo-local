@@ -25,17 +25,14 @@ Requirements:
 
 ```bash
 # Clone your fork and use the local-first branch.
-git clone git@github.com:ndom91/shipvideo.git
+git clone git@github.com:ndom91/shipvideo-local.git
 cd shipvideo
 git switch local-claude-run
 
-# Confirm that Claude Code can use your existing subscription login.
-claude auth status                 # must show loggedIn: true
-
-# Install the local renderer and Chromium headless shell.
+# Install deps incl. playwright it's copy of headless chromium
 npm run setup-local
 
-# Start the web application.
+# Start the web application and take prompt / URL input to generate video
 cd web && npm install && npm run dev
 ```
 
