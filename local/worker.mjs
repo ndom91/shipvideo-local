@@ -37,12 +37,9 @@ const source =
     : `Use this launch-video brief: ${job.input}`;
 const prompt = `You are the local launch-video director. ${source}
 
-Work only in your current directory. Produce a 20-40 second launch film as a single 1920x1080 HTML document at ${scenePath}. Write ${sceneConfigPath} containing exactly JSON with one durationSeconds number between 20 and 40. You may use WebFetch or curl to understand a URL.
+Work only in your current directory. Produce a 20-40 second launch film as a single 1920x1080 HTML document at ${scenePath}. Write ${sceneConfigPath} containing exactly JSON with one durationSeconds number between 20 and 40. You may use WebFetch to understand a URL.
 
 The film must be deterministic: no video, audio, iframe, external images, external scripts, CSS transitions, or Math.random. Google Font stylesheets are allowed. Use CSS keyframes or requestAnimationFrame. Tell a concise product story in 6-10 beats with large kinetic typography and custom HTML/SVG/canvas visuals.
-
-Before finishing, run this command at least once and fix every error it reports:
-node ${rendererPath} --check ${scenePath} <durationSeconds>
 
 Do not render the MP4 yourself; the local worker will render it after you finish. Do not edit files outside this job directory.`;
 
@@ -59,7 +56,7 @@ try {
       "--permission-mode",
       "dontAsk",
       "--allowedTools",
-      "Read,Write,Edit,WebFetch,Bash(node *)",
+      "Read,Write,Edit,WebFetch",
       "--output-format",
       "json",
     ],
