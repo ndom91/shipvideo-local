@@ -29,10 +29,10 @@ git clone git@github.com:ndom91/shipvideo-local.git
 cd shipvideo
 git switch local-claude-run
 
-# Install deps incl. playwright it's copy of headless chromium
+# Install deps including playwright and it's copy of headless chromium
 npm run setup-local
 
-# Start the web application and take prompt / URL input to generate video
+# Start the web app where you can enter any prompt / URL input to generate a video
 cd web && npm install && npm run dev
 ```
 
