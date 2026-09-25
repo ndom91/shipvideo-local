@@ -42,9 +42,13 @@ async function pruneLocalJobs(): Promise<void> {
         .map(async (entry) => {
           const directory = join(jobRoot, entry.name);
           try {
+            const state = JSON.parse(
+              await readFile(join(directory, "state.json"), "utf8"),
+            ) as LocalJobState;
             return {
               directory,
               updatedAt: (await stat(join(directory, "state.json"))).mtimeMs,
+              status: state.status,
             };
           } catch {
             return null;
@@ -53,12 +57,19 @@ async function pruneLocalJobs(): Promise<void> {
     )
   )
     .filter(
-      (job): job is { directory: string; updatedAt: number } => job !== null,
+      (
+        job,
+      ): job is {
+        directory: string;
+        updatedAt: number;
+        status: LocalJobState["status"];
+      } => job !== null,
     )
     .sort((a, b) => b.updatedAt - a.updatedAt);
   const cutoff = Date.now() - maxJobAgeMs;
+  const completedJobs = jobs.filter((job) => job.status !== "working");
   await Promise.all(
-    jobs
+    completedJobs
       .filter(
         (job, index) => job.updatedAt < cutoff || index >= maxRetainedJobs,
       )
