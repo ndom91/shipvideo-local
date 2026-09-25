@@ -20,7 +20,7 @@ web/            Next.js app, local job API, and local MP4 streaming route
 Requirements:
 
 - macOS on Apple Silicon. The renderer has been verified on a MacBook Pro.
-- Node.js 22 or newer.
+- Node.js 24 LTS. Version 24.21.0 is pinned in `.nvmrc`.
 - Claude Code installed and logged into a Claude subscription. An API key is
   not used.
 

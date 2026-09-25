@@ -9,10 +9,10 @@
     "dev": "pnpm --filter web dev"
   },
   "dependencies": {
-    "ffmpeg-static": "^5.2.0",
-    "playwright-core": "^1.57.0"
+    "ffmpeg-static": "^5.3.0",
+    "playwright-core": "^1.63.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0 <25.0.0"
   }
 }
