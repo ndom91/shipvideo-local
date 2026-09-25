@@ -8,38 +8,12 @@ const mono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const SITE = "https://launchvideo.io";
 const DESCRIPTION =
   "Create launch videos locally with Claude Code, Playwright, and ffmpeg. No video model or API key required.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
-  title: "LaunchVideo",
+  title: "LaunchVideo Local",
   description: DESCRIPTION,
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "LaunchVideo: a launch video from a URL or a prompt",
-    description: DESCRIPTION,
-    url: SITE,
-    siteName: "LaunchVideo",
-    type: "website",
-    images: [
-      {
-        url: "https://gzvxcspoxhhgoeog.public.blob.vercel-storage.com/examples/infera-gXTtuX8hOzbsPSy3SAAdqKElG42trA.jpg",
-        width: 1280,
-        height: 720,
-        alt: "End card of a launch video made by LaunchVideo",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "LaunchVideo",
-    description: DESCRIPTION,
-    images: [
-      "https://gzvxcspoxhhgoeog.public.blob.vercel-storage.com/examples/infera-gXTtuX8hOzbsPSy3SAAdqKElG42trA.jpg",
-    ],
-  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
