@@ -70,14 +70,17 @@ Each request gets an isolated directory at `web/.local-jobs/<job-id>/`:
 These directories are ignored by Git. The completed MP4 is streamed locally at
 `/api/videos/<job-id>`; it is not uploaded anywhere.
 
+Completed jobs are retained for up to 30 days, with the newest 50 kept. Active
+jobs are never removed by this cleanup.
+
 ### How a job flows
 
 1. `POST /api/jobs` validates the input, creates an isolated job folder, and
    launches a detached local worker.
 2. The worker calls `claude -p` in that folder. Claude uses its existing
    subscription login to research the source and write `scene.html`.
-3. Claude checks the scene with `local/render.mjs --check` and the worker then
-   renders it with Playwright's Chromium headless shell and `ffmpeg-static`.
+3. The worker checks the scene with `local/render.mjs --check`, then renders it
+   with Playwright's Chromium headless shell and `ffmpeg-static`.
 4. `GET /api/jobs/<id>` reads the local state file for progress, and
    `GET /api/videos/<id>` streams the finished MP4 with range support.
 
@@ -88,8 +91,8 @@ Rendering runs at roughly real time: a 30 s film takes 30-40 s on a MacBook Pro.
 - No `<video>`, `<audio>`, `<iframe>`, CSS transitions, `Math.random`, or
   external images in a scene; the worker prompt and renderer enforce this so
   renders stay deterministic.
-- The job worker only permits Claude Code's file tools, WebFetch, and the
-  `node` scene-check command. It does not grant arbitrary shell access.
+- The job worker only permits Claude Code's file tools and WebFetch. It does
+  not grant shell access.
 - URL mode asks Claude to read a public site. Treat submitted URLs as untrusted
   content and keep this app bound to localhost unless you add authentication
   and network restrictions.
