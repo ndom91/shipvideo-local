@@ -21,6 +21,12 @@ function validate(body: unknown): { mode: Mode; input: string } {
   const input = typeof b.input === "string" ? b.input.trim() : "";
   if (!input)
     throw new Error(mode === "url" ? "Paste a URL." : "Write a prompt.");
+  if (input.length > 2000)
+    throw new Error(
+      mode === "url"
+        ? "Keep the URL under 2000 characters."
+        : "Keep the prompt under 2000 characters.",
+    );
   if (mode === "url") {
     let url: URL;
     try {
@@ -32,8 +38,6 @@ function validate(body: unknown): { mode: Mode; input: string } {
       throw new Error("Only http(s) URLs work.");
     return { mode, input: url.toString() };
   }
-  if (input.length > 2000)
-    throw new Error("Keep the prompt under 2000 characters.");
   return { mode, input };
 }
 
