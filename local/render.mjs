@@ -1,6 +1,6 @@
-import { createRequire } from "node:module";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 
 const require = createRequire(import.meta.url);
@@ -42,22 +42,45 @@ const CLOCK = `(() => {
 })();`;
 
 function assertScene(html) {
-  if (html.length < 200 || (!/<html[\s>]/i.test(html) && !/<body[\s>]/i.test(html))) throw new Error("scene.html must be a complete HTML document.");
-  if (/<(video|audio|iframe)[\s>]/i.test(html)) throw new Error("Scenes cannot use video, audio, or iframe elements.");
+  if (
+    html.length < 200 ||
+    (!/<html[\s>]/i.test(html) && !/<body[\s>]/i.test(html))
+  )
+    throw new Error("scene.html must be a complete HTML document.");
+  if (/<(video|audio|iframe)[\s>]/i.test(html))
+    throw new Error("Scenes cannot use video, audio, or iframe elements.");
 }
 
 async function openScene(html) {
-  const browser = await chromium.launch({ args: ["--disable-gpu", "--font-render-hinting=none", "--hide-scrollbars", "--force-color-profile=srgb"] });
-  const context = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: 1, colorScheme: "light" });
+  const browser = await chromium.launch({
+    args: [
+      "--disable-gpu",
+      "--font-render-hinting=none",
+      "--hide-scrollbars",
+      "--force-color-profile=srgb",
+    ],
+  });
+  const context = await browser.newContext({
+    viewport: { width: WIDTH, height: HEIGHT },
+    deviceScaleFactor: 1,
+    colorScheme: "light",
+  });
   await context.addInitScript(CLOCK);
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-  page.on("console", (message) => { if (["error", "warning"].includes(message.type())) errors.push(`console.${message.type()}: ${message.text()}`); });
-  page.on("requestfailed", (request) => errors.push(`request failed: ${request.url()}`));
+  page.on("console", (message) => {
+    if (["error", "warning"].includes(message.type()))
+      errors.push(`console.${message.type()}: ${message.text()}`);
+  });
+  page.on("requestfailed", (request) =>
+    errors.push(`request failed: ${request.url()}`),
+  );
   await page.setContent(html, { waitUntil: "load", timeout: 30_000 });
   await page.evaluate(() => document.fonts.ready);
-  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+  await page
+    .waitForLoadState("networkidle", { timeout: 10_000 })
+    .catch(() => undefined);
   await page.evaluate(() => window.__seek(0));
   return { browser, context, page, errors };
 }
@@ -68,7 +91,18 @@ async function check(html, durationSeconds) {
     const frames = [];
     for (let second = 0; second <= durationSeconds; second += 3) {
       await scene.page.evaluate((ms) => window.__seek(ms), second * 1000);
-      frames.push(await scene.page.evaluate((t) => ({ t, text: document.body.innerText.replace(/\s+/g, " ").trim().slice(0, 1000) }), second));
+      frames.push(
+        await scene.page.evaluate(
+          (t) => ({
+            t,
+            text: document.body.innerText
+              .replace(/\s+/g, " ")
+              .trim()
+              .slice(0, 1000),
+          }),
+          second,
+        ),
+      );
     }
     return { ok: scene.errors.length === 0, errors: scene.errors, frames };
   } finally {
@@ -82,14 +116,43 @@ async function render(html, durationSeconds, output) {
   const fps = 30;
   const total = Math.round(durationSeconds * fps);
   await mkdir(dirname(output), { recursive: true });
-  const ffmpeg = spawn(ffmpegPath, ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(fps), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", output]);
+  const ffmpeg = spawn(ffmpegPath, [
+    "-y",
+    "-loglevel",
+    "error",
+    "-f",
+    "image2pipe",
+    "-framerate",
+    String(fps),
+    "-i",
+    "-",
+    "-c:v",
+    "libx264",
+    "-preset",
+    "medium",
+    "-crf",
+    "18",
+    "-pix_fmt",
+    "yuv420p",
+    "-movflags",
+    "+faststart",
+    output,
+  ]);
   let stderr = "";
-  ffmpeg.stderr.on("data", (data) => { stderr += String(data); });
+  ffmpeg.stderr.on("data", (data) => {
+    stderr += String(data);
+  });
   try {
     for (let frame = 0; frame < total; frame++) {
-      await scene.page.evaluate((ms) => window.__seek(ms), (frame * 1000) / fps);
+      await scene.page.evaluate(
+        (ms) => window.__seek(ms),
+        (frame * 1000) / fps,
+      );
       const image = await scene.page.screenshot({ type: "jpeg", quality: 92 });
-      if (!ffmpeg.stdin.write(image)) await new Promise((resolveDrain) => ffmpeg.stdin.once("drain", resolveDrain));
+      if (!ffmpeg.stdin.write(image))
+        await new Promise((resolveDrain) =>
+          ffmpeg.stdin.once("drain", resolveDrain),
+        );
       if (frame % 90 === 0) console.log(`rendering ${frame}/${total}`);
     }
   } finally {
@@ -97,21 +160,39 @@ async function render(html, durationSeconds, output) {
     await scene.context.close();
     await scene.browser.close();
   }
-  const exitCode = await new Promise((resolveExit) => ffmpeg.on("close", resolveExit));
-  if (exitCode !== 0) throw new Error(`ffmpeg exited ${exitCode}: ${stderr.slice(-1500)}`);
+  const exitCode = await new Promise((resolveExit) =>
+    ffmpeg.on("close", resolveExit),
+  );
+  if (exitCode !== 0)
+    throw new Error(`ffmpeg exited ${exitCode}: ${stderr.slice(-1500)}`);
 }
 
 const [mode, scenePath, value, outputPath] = process.argv.slice(2);
-if (!mode || !scenePath) throw new Error("Usage: render.mjs --check scene.html duration | --render scene.html duration output.mp4");
+if (!mode || !scenePath)
+  throw new Error(
+    "Usage: render.mjs --check scene.html duration | --render scene.html duration output.mp4",
+  );
 const html = await readFile(resolve(scenePath), "utf8");
 assertScene(html);
 const durationSeconds = Number(value);
-if (!Number.isFinite(durationSeconds) || durationSeconds < 3 || durationSeconds > 90) throw new Error("Duration must be between 3 and 90 seconds.");
+if (
+  !Number.isFinite(durationSeconds) ||
+  durationSeconds < 3 ||
+  durationSeconds > 90
+)
+  throw new Error("Duration must be between 3 and 90 seconds.");
 if (mode === "--check") {
   console.log(JSON.stringify(await check(html, durationSeconds), null, 2));
 } else if (mode === "--render" && outputPath) {
   await render(html, durationSeconds, resolve(outputPath));
-  console.log(JSON.stringify({ output: resolve(outputPath), bytes: (await stat(resolve(outputPath))).size }));
+  console.log(
+    JSON.stringify({
+      output: resolve(outputPath),
+      bytes: (await stat(resolve(outputPath))).size,
+    }),
+  );
 } else {
-  throw new Error("Usage: render.mjs --check scene.html duration | --render scene.html duration output.mp4");
+  throw new Error(
+    "Usage: render.mjs --check scene.html duration | --render scene.html duration output.mp4",
+  );
 }

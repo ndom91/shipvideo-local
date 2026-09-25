@@ -1,6 +1,9 @@
 packages:
   - web
 
+saveExact: true
+minimumReleaseAge: 10080
+
 allowBuilds:
   ffmpeg-static: true
   unrs-resolver: true
