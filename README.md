@@ -10,7 +10,11 @@ Claude Code login you use (subscription or API key).
 This fork is intended for local use. It launches Claude Code and renders video
 on the same machine running the small local Next.js app.
 
-![LaunchVideo local workspace, showing the render composer and local video library](./example_001.png)
+![LaunchVideo local workspace, showing the render composer and local video library](./.github/assets/example_001.png)
+
+## Example Video
+
+![](./.github/assets/pve_agents_launch.mp4)
 
 ## Quick Start
 
