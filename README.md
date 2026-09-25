@@ -28,7 +28,7 @@ Requirements:
 ```bash
 # Clone your fork and use the local-first branch.
 git clone git@github.com:ndom91/shipvideo-local.git
-cd shipvideo
+cd shipvideo-local
 git switch local-claude-run
 
 # Install deps including playwright and it's copy of headless chromium
