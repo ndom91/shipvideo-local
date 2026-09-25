@@ -87,13 +87,19 @@ export async function createLocalJob(input: {
       2,
     ),
   );
-  const child = spawn(process.execPath, [worker, dir], {
-    cwd: dir,
-    detached: true,
-    stdio: "ignore",
-    env: process.env,
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(process.execPath, [worker, dir], {
+      cwd: dir,
+      detached: true,
+      stdio: "ignore",
+      env: process.env,
+    });
+    child.once("error", reject);
+    child.once("spawn", () => {
+      child.unref();
+      resolve();
+    });
   });
-  child.unref();
 }
 
 export async function getLocalJob(
