@@ -1,13 +1,12 @@
 # LaunchVideo, local Claude Code edition
 
 Paste a URL or a prompt, get a 20 to 40 second launch video. No video model:
-Claude Code writes a single HTML film, then this Mac renders it frame by frame
-in headless Chromium and encodes it with ffmpeg. It uses the existing Claude
-Code login, so it does not require `ANTHROPIC_API_KEY`, Vercel, or a Blob
-store.
+Claude Code writes a single HTML film, then your computer renders it frame by frame
+in headless Chromium and records it with ffmpeg. Compatible with whatever 
+Claude Code login you use (subscription or API key).
 
 This fork is intended for local use. It launches Claude Code and renders video
-on the same machine running the Next.js app.
+on the same machine running the small local Next.js app.
 
 ![LaunchVideo local workspace, showing the render composer and local video library](./local-video-workspace.png)
 
