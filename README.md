@@ -14,7 +14,7 @@ on the same machine running the small local Next.js app.
 
 ## Example Video
 
-![](./.github/assets/pve_agents_launch.mp4)
+https://github.com/user-attachments/assets/710fde43-9dce-44fd-ae2d-7c3f28435121
 
 ## Quick Start
 
