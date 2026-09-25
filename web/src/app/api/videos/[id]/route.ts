@@ -20,11 +20,30 @@ export async function GET(
     return new NextResponse("video not found", { status: 404 });
   }
   const range = request.headers.get("range");
-  const match = range?.match(/^bytes=(\d*)-(\d*)$/);
-  const start = match?.[1] ? Number(match[1]) : 0;
-  const end = match?.[2]
+  if (!range) {
+    return new NextResponse(
+      Readable.toWeb(createReadStream(localVideoPath(jobId))) as ReadableStream,
+      {
+        headers: {
+          "accept-ranges": "bytes",
+          "content-length": String(info.size),
+          "content-type": "video/mp4",
+        },
+      },
+    );
+  }
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  if (!match || (!match[1] && !match[2]))
+    return new NextResponse(null, {
+      status: 416,
+      headers: { "content-range": `bytes */${info.size}` },
+    });
+  const end = match[2]
     ? Math.min(Number(match[2]), info.size - 1)
     : info.size - 1;
+  const start = match[1]
+    ? Number(match[1])
+    : Math.max(0, info.size - Number(match[2]));
   if (start < 0 || end < start || start >= info.size)
     return new NextResponse(null, {
       status: 416,
@@ -36,7 +55,7 @@ export async function GET(
       createReadStream(localVideoPath(jobId), { start, end }),
     ) as ReadableStream,
     {
-      status: match ? 206 : 200,
+      status: 206,
       headers: {
         "accept-ranges": "bytes",
         "content-length": String(length),
