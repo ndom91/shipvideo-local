@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
-import { createLocalJob, newJobId, type Mode } from "@/lib/local-jobs";
+import { createLocalJob, listLocalJobs, newJobId, type Mode } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+export async function GET() {
+  const jobs = await listLocalJobs();
+  return NextResponse.json({
+    jobs: jobs.map((job) => ({
+      ...job,
+      videoUrl: job.status === "done" ? `/api/videos/${job.jobId}` : undefined,
+    })),
+  });
+}
 
 function validate(body: unknown): { mode: Mode; input: string } {
   const b = (body ?? {}) as { mode?: unknown; input?: unknown };
