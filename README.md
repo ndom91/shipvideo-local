@@ -9,7 +9,7 @@ store.
 This fork is intended for local use. It launches Claude Code and renders video
 on the same machine running the Next.js app.
 
-![LaunchVideo local workspace, showing the render composer and local video library](<./2026-09-25 13.31.23 localhost 3a1a8c325351.png>)
+![LaunchVideo local workspace, showing the render composer and local video library](./local-video-workspace.png)
 
 ```
 local/          local Claude Code worker and Playwright + ffmpeg renderer
