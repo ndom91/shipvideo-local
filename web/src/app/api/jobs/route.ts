@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSession, createTurn, endSession, waitForRuntime } from "@/lib/oc";
-import { jobText, newJobId, writeManifest, type Mode } from "@/lib/jobs";
-import { clientIp, dailyAllowed, ipAllowed } from "@/lib/limits";
+import { createLocalJob, newJobId, type Mode } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -32,27 +30,11 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Bad request" }, { status: 400 });
   }
-  const ip = ipAllowed(clientIp(request));
-  if (!ip.ok) {
-    return NextResponse.json(
-      { error: `Easy there. You can start a few videos an hour; try again in ${Math.ceil(ip.retryAfterSeconds / 60)} min, or deploy the agent to your own account.` },
-      { status: 429, headers: { "retry-after": String(ip.retryAfterSeconds) } },
-    );
-  }
-  const day = await dailyAllowed();
-  if (!day.ok) {
-    return NextResponse.json({ error: "Today's free videos are all used up. Deploy the agent to your own OpenComputer account and it runs without limits." }, { status: 429 });
-  }
   const jobId = newJobId();
-  const session = await createSession();
   try {
-    await waitForRuntime(session.id);
-    const manifestUrl = await writeManifest(jobId);
-    const text = jobText({ jobId, mode: job.mode, input: job.input, manifestUrl });
-    await createTurn(session.id, text, `job:${jobId}`);
+    await createLocalJob({ jobId, mode: job.mode, input: job.input });
   } catch (error) {
-    await endSession(session.id);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Could not start the agent" }, { status: 502 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Could not start the local worker" }, { status: 502 });
   }
-  return NextResponse.json({ jobId, sessionId: session.id });
+  return NextResponse.json({ jobId });
 }

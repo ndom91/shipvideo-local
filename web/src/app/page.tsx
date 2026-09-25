@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Examples } from "./examples";
 import { Technical } from "./technical";
 import { AfterVideo, Nav } from "./cta";
-import { DEPLOY_URL, DOCS_URL, REPO_URL } from "@/lib/links";
+import { REPO_URL } from "@/lib/links";
 
 type Mode = "url" | "prompt";
-type Job = { jobId: string; sessionId: string; mode: Mode; input: string; startedAt: number };
+type Job = { jobId: string; mode: Mode; input: string; startedAt: number };
 type Poll = { status: "working" | "done" | "error"; phase?: string; videoUrl?: string; message?: string; note?: string };
 
 const STORAGE = "launchvideo:job";
@@ -25,10 +25,18 @@ function loadJob(): Job | null {
   }
 }
 
+function initialJob(): Job | null {
+  if (typeof window === "undefined") return null;
+  const jobId = new URLSearchParams(window.location.search).get("job");
+  if (jobId) return { jobId, mode: "prompt", input: "", startedAt: Date.now() };
+  const saved = loadJob();
+  return saved && Date.now() - saved.startedAt < 30 * 60 * 1000 ? saved : null;
+}
+
 export default function Home() {
   const [mode, setMode] = useState<Mode>("url");
   const [input, setInput] = useState("");
-  const [job, setJob] = useState<Job | null>(null);
+  const [job, setJob] = useState<Job | null>(initialJob);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -36,24 +44,11 @@ export default function Home() {
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
-    // ?job=<id>&session=<sid> reopens a job started elsewhere (handy for sharing a link).
-    const params = new URLSearchParams(window.location.search);
-    const jobId = params.get("job");
-    const sessionId = params.get("session");
-    if (jobId && sessionId) {
-      setJob({ jobId, sessionId, mode: "prompt", input: "", startedAt: Date.now() });
-      return;
-    }
-    const saved = loadJob();
-    if (saved && Date.now() - saved.startedAt < 30 * 60 * 1000) setJob(saved);
-  }, []);
-
-  useEffect(() => {
     if (!job) return;
     let stopped = false;
     const tick = async () => {
       try {
-        const res = await fetch(`/api/jobs/${job.jobId}?session=${encodeURIComponent(job.sessionId)}`, { cache: "no-store" });
+        const res = await fetch(`/api/jobs/${job.jobId}`, { cache: "no-store" });
         const data = (await res.json()) as Poll;
         if (stopped) return;
         setPoll(data);
@@ -77,9 +72,9 @@ export default function Home() {
     setSubmitting(true);
     try {
       const res = await fetch("/api/jobs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode, input }) });
-      const data = (await res.json()) as { jobId?: string; sessionId?: string; error?: string };
-      if (!res.ok || !data.jobId || !data.sessionId) throw new Error(data.error ?? "Could not start");
-      const next: Job = { jobId: data.jobId, sessionId: data.sessionId, mode, input, startedAt: Date.now() };
+      const data = (await res.json()) as { jobId?: string; error?: string };
+      if (!res.ok || !data.jobId) throw new Error(data.error ?? "Could not start");
+      const next: Job = { jobId: data.jobId, mode, input, startedAt: Date.now() };
       localStorage.setItem(STORAGE, JSON.stringify(next));
       setPoll(null);
       setElapsed(0);
@@ -111,7 +106,7 @@ export default function Home() {
             Ship a launch video.
           </h1>
           <p className="mt-5 text-lg text-muted max-w-xl">
-            Paste a URL or describe the product. Opus 5.5 writes the film and a serverless agent renders it. About four minutes and roughly 100k tokens per video.
+            Paste a URL or describe the product. Your local Claude Code subscription writes the film and this Mac renders it. About four minutes per video.
           </p>
         </header>
 
@@ -182,18 +177,14 @@ export default function Home() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
               </span>
-              <p className="text-lg font-medium">{poll?.phase ?? "Starting the agent"}</p>
+              <p className="text-lg font-medium">{poll?.phase ?? "Starting local Claude Code"}</p>
               <span className="ml-auto font-mono text-xs text-muted tabular-nums">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}</span>
             </div>
             <p className="mt-3 text-sm text-muted break-words">
               {job.mode === "url" ? job.input : job.input.slice(0, 160)}
             </p>
             <p className="mt-6 text-xs text-muted">
-              The agent reads the source, writes an HTML film, checks it, renders 30 frames a second in a headless browser, and uploads the MP4. You can leave this tab open.
-            </p>
-            <p className="mt-3 text-xs text-muted">
-              While you wait: the agent doing this is open source.{" "}
-              <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="text-foreground underline underline-offset-4">Deploy a copy to your OpenComputer account</a>.
+              Claude reads the source, writes and checks an HTML film, then this Mac renders 30 frames a second in a headless browser. You can leave this tab open.
             </p>
             <button onClick={reset} className="mt-4 text-xs text-muted hover:text-foreground">cancel and start over</button>
           </section>
@@ -234,10 +225,8 @@ export default function Home() {
         <Technical />
 
         <footer className="mt-14 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px] text-muted">
-          <span>a serverless agent on opencomputer.dev · anthropic/claude-opus-5.5 · no video model</span>
-          <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">deploy</a>
+          <span>local Claude Code · local Playwright + ffmpeg · no video model</span>
           <a href={REPO_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">github</a>
-          <a href={DOCS_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">docs</a>
         </footer>
       </div>
     </main>

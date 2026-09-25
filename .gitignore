@@ -5,3 +5,4 @@ node_modules/
 .opencomputer/
 opencomputer/agents/*/.opencomputer/
 .DS_Store
+web/.local-jobs/
