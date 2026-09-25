@@ -2,6 +2,7 @@ import { createReadStream, type Stats } from "node:fs";
 import { stat } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
+import { parseByteRange } from "@/lib/byte-range";
 import { localVideoPath } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
@@ -32,23 +33,13 @@ export async function GET(
       },
     );
   }
-  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
-  if (!match || (!match[1] && !match[2]))
+  const byteRange = parseByteRange(range, info.size);
+  if (!byteRange)
     return new NextResponse(null, {
       status: 416,
       headers: { "content-range": `bytes */${info.size}` },
     });
-  const end = match[2]
-    ? Math.min(Number(match[2]), info.size - 1)
-    : info.size - 1;
-  const start = match[1]
-    ? Number(match[1])
-    : Math.max(0, info.size - Number(match[2]));
-  if (start < 0 || end < start || start >= info.size)
-    return new NextResponse(null, {
-      status: 416,
-      headers: { "content-range": `bytes */${info.size}` },
-    });
+  const { start, end } = byteRange;
   const length = end - start + 1;
   return new NextResponse(
     Readable.toWeb(

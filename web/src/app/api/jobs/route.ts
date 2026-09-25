@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { Mode } from "@/lib/job-types";
+import { validateJobInput } from "@/lib/job-input";
 import { createLocalJob, listLocalJobs, newJobId } from "@/lib/local-jobs";
 
 export const runtime = "nodejs";
@@ -15,36 +15,10 @@ export async function GET() {
   });
 }
 
-function validate(body: unknown): { mode: Mode; input: string } {
-  const b = (body ?? {}) as { mode?: unknown; input?: unknown };
-  const mode: Mode = b.mode === "url" ? "url" : "prompt";
-  const input = typeof b.input === "string" ? b.input.trim() : "";
-  if (!input)
-    throw new Error(mode === "url" ? "Paste a URL." : "Write a prompt.");
-  if (input.length > 2000)
-    throw new Error(
-      mode === "url"
-        ? "Keep the URL under 2000 characters."
-        : "Keep the prompt under 2000 characters.",
-    );
-  if (mode === "url") {
-    let url: URL;
-    try {
-      url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
-    } catch {
-      throw new Error("That does not look like a URL.");
-    }
-    if (!/^https?:$/.test(url.protocol))
-      throw new Error("Only http(s) URLs work.");
-    return { mode, input: url.toString() };
-  }
-  return { mode, input };
-}
-
 export async function POST(request: Request) {
-  let job: { mode: Mode; input: string };
+  let job: ReturnType<typeof validateJobInput>;
   try {
-    job = validate(await request.json());
+    job = validateJobInput(await request.json());
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Bad request" },
