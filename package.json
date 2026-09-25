@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.8.0",
   "scripts": {
-    "setup-local": "npm install && npx playwright-core install chromium-headless-shell"
+    "setup-local": "pnpm install && pnpm exec playwright-core install chromium-headless-shell",
+    "dev": "pnpm --filter web dev"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",
     "playwright-core": "^1.57.0"
   },
-  "engines": { "node": ">=22.0.0" }
+  "engines": {
+    "node": ">=22.0.0"
+  }
 }

@@ -31,11 +31,11 @@ git clone git@github.com:ndom91/shipvideo-local.git
 cd shipvideo-local
 git switch local-claude-run
 
-# Install deps including playwright and it's copy of headless chromium
-npm run setup-local
+# Install workspace dependencies, Playwright, and its copy of headless Chromium
+pnpm setup-local
 
 # Start the web app where you can enter any prompt / URL input to generate a video
-cd web && npm install && npm run dev
+pnpm dev
 ```
 
 Open http://localhost:3000 and submit either a URL or a brief.
@@ -52,10 +52,10 @@ The defaults require no environment file. Optional environment variables:
 For example:
 
 ```bash
-CLAUDE_MODEL=sonnet npm run dev
+CLAUDE_MODEL=sonnet pnpm dev
 ```
 
-Run that command from `web/` after installing dependencies.
+Run that command from the repository root after installing dependencies.
 
 ## Local Files
 
@@ -99,6 +99,6 @@ Rendering runs at roughly real time: a 30 s film takes 30-40 s on a MacBook Pro.
 | Problem | Check |
 | --- | --- |
 | Job fails immediately | Run `claude auth status`; it must report `loggedIn: true`. |
-| Renderer cannot launch Chromium | Re-run `npm run setup-local` from the repository root. |
+| Renderer cannot launch Chromium | Re-run `pnpm setup-local` from the repository root. |
 | Job says scene validation failed | Read `web/.local-jobs/<job-id>/claude.log`; Claude's generated `scene.html` is alongside it. |
-| `claude` is not found | Set `CLAUDE_COMMAND` to its full path before starting `npm run dev`. |
+| `claude` is not found | Set `CLAUDE_COMMAND` to its full path before starting `pnpm dev`. |
