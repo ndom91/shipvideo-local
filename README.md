@@ -25,7 +25,7 @@ Requirements:
 - Claude Code installed and logged in
 
 ```bash
-# Clone your fork and use the local-first branch.
+# Clone the fork
 git clone https://github.com/ndom91/shipvideo-local
 cd shipvideo-local
 
